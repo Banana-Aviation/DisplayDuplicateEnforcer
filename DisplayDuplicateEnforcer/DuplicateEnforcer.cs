@@ -17,15 +17,11 @@ public static partial class DuplicateEnforcer
 
     private const uint SdcApply = 0x00000080;
     private const uint SdcTopologyClone = 0x00000002;
-
-    public static void SystemEventsOnDisplaySettingsChanged(object? sender, EventArgs e)
-    {
-        if (!TrayApp.ShouldEnforce) return;
-        ReactToDisplayCountChange();
-    }
+    
 
     public static void ReactToDisplayCountChange()
     {
+        if (!TrayApp.ShouldEnforce) return;
         _displayCount = Screen.AllScreens.Length;
         ReactToDisplayCountChange(_displayCount);
     }

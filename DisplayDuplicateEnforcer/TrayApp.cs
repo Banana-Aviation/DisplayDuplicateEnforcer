@@ -13,7 +13,7 @@ public class TrayApp : ApplicationContext
     private bool _isEnabled = true;
 #pragma warning disable CA2211
     public static bool ShouldEnforce = true;
-
+    private MessageWindow messageWindow;
     public TrayApp()
     {
         try
@@ -29,20 +29,16 @@ public class TrayApp : ApplicationContext
             };
             _notifyIcon.MouseClick += NotifyIconOnMouseClick;
             Application.ApplicationExit += ApplicationOnApplicationExit;
-            if (_isEnabled)
-            {
-                SystemEvents.DisplaySettingsChanged += DuplicateEnforcer.SystemEventsOnDisplaySettingsChanged;
-            }
+            messageWindow = new MessageWindow();
         }
         catch (Exception e)
         {
             DuplicateEnforcer.Log($"Error: {e.Message}\nStackTrace: {e.StackTrace}");
         }
     }
-
+    
     private void ApplicationOnApplicationExit(object? sender, EventArgs e)
     {
-        SystemEvents.DisplaySettingsChanged -= DuplicateEnforcer.SystemEventsOnDisplaySettingsChanged;
         _notifyIcon.Visible = false;
         _notifyIcon.Dispose();
     }
