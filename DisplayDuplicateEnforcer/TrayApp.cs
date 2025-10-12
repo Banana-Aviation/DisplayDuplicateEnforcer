@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Drawing;
 using Microsoft.Win32;
 
 namespace DisplayDuplicateEnforcer;
@@ -13,11 +12,14 @@ public class TrayApp : ApplicationContext
     private bool _isEnabled = true;
 #pragma warning disable CA2211
     public static bool ShouldEnforce = true;
+    public static int RequiredScaling;
     private MessageWindow messageWindow;
+
     public TrayApp()
     {
         try
         {
+            RequiredScaling = GetRequiredScaling();
             var assembly = Assembly.GetExecutingAssembly();
             using var stream = assembly.GetManifestResourceStream("DisplayDuplicateEnforcer.Resources.AppIcon.ico");
             InitializeContextMenu();
@@ -31,14 +33,13 @@ public class TrayApp : ApplicationContext
             Application.ApplicationExit += ApplicationOnApplicationExit;
             messageWindow = new MessageWindow();
             DuplicateEnforcer.ReactToDisplayCountChange();
-            
         }
         catch (Exception e)
         {
-            DuplicateEnforcer.Log($"Error: {e.Message}\nStackTrace: {e.StackTrace}");
+            Logger.Log($"Error: {e.Message}\nStackTrace: {e.StackTrace}");
         }
     }
-    
+
     private void ApplicationOnApplicationExit(object? sender, EventArgs e)
     {
         _notifyIcon.Visible = false;
@@ -92,5 +93,24 @@ public class TrayApp : ApplicationContext
         {
             DuplicateEnforcer.ReactToDisplayCountChange();
         }
+    }
+
+    private static int GetRequiredScaling()
+    {
+        const int defaultValue = 100;
+        using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\DDE");
+        if (key is null)
+        {
+            return defaultValue;
+        }
+
+        var obj = key.GetValue("BaseScaling", 0);
+        var dword = (int)obj;
+        if (dword == 0)
+        {
+            return defaultValue;
+        }
+        key.Close();
+        return dword;
     }
 }
