@@ -32,6 +32,7 @@ public class TrayApp : ApplicationContext
             _notifyIcon.MouseClick += NotifyIconOnMouseClick;
             Application.ApplicationExit += ApplicationOnApplicationExit;
             messageWindow = new MessageWindow();
+            
             DuplicateEnforcer.ReactToDisplayCountChange();
         }
         catch (Exception e)
