@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace DisplayDuplicateEnforcer;
@@ -31,21 +30,12 @@ public static partial class DuplicateEnforcer
     {
         try
         {
-            Logger.Log($"Display Count Changed: {displayCount}");
-            Logger.Log($"TrayApp.RequiredScaling={TrayApp.RequiredScaling}");
-            for (var i = 0; i < _displayCount; i++)
+            Logger.Log($"Display Count={displayCount} ForcedScaling={TrayApp.RequiredScaling}");
+            for (var i = 0; i < displayCount; i++)
             {
-                var processStartInfo = new ProcessStartInfo()
-                {
-                    FileName = "SetDpi.exe",
-                    Arguments = $"{TrayApp.RequiredScaling} {i+1}",
-                    CreateNoWindow = true,
-                    LoadUserProfile = false,
-                    UseShellExecute = false,
-                };
-                var process = Process.Start(processStartInfo);
-                process?.WaitForExit();
+                SetDpi.SetDpiOnDisplay(TrayApp.RequiredScaling, i + 1);
             }
+
             if (displayCount != 2) return;
 
             var result = SetDisplayConfig(

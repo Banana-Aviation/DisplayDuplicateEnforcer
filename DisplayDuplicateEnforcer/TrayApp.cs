@@ -14,6 +14,7 @@ public class TrayApp : ApplicationContext
     public static bool ShouldEnforce = true;
     public static int RequiredScaling;
     private MessageWindow messageWindow;
+    public const int DefaultScaling = 100;
 
     public TrayApp()
     {
@@ -32,7 +33,7 @@ public class TrayApp : ApplicationContext
             _notifyIcon.MouseClick += NotifyIconOnMouseClick;
             Application.ApplicationExit += ApplicationOnApplicationExit;
             messageWindow = new MessageWindow();
-            
+
             DuplicateEnforcer.ReactToDisplayCountChange();
         }
         catch (Exception e)
@@ -98,20 +99,14 @@ public class TrayApp : ApplicationContext
 
     private static int GetRequiredScaling()
     {
-        const int defaultValue = 100;
         using var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\DDE");
         if (key is null)
         {
-            return defaultValue;
+            return DefaultScaling;
         }
 
-        var obj = key.GetValue("BaseScaling", 0);
-        var dword = (int)obj;
-        if (dword == 0)
-        {
-            return defaultValue;
-        }
+        var scaling = (int)key.GetValue("Scaling", DefaultScaling);
         key.Close();
-        return dword;
+        return scaling;
     }
 }
